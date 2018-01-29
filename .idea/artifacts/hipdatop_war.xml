@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="hipdatop:war">
-    <output-path>$PROJECT_DIR$/target</output-path>
-    <root id="archive" name="hipda-top.war">
-      <element id="artifact" artifact-name="hipdatop:war exploded" />
-    </root>
-  </artifact>
-</component>

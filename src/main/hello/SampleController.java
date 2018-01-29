@@ -1,5 +1,7 @@
 package hello;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,32 +13,54 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 @Controller
 @EnableAutoConfiguration
 public class SampleController {
+
+    private static Logger logger= LoggerFactory.getLogger(SampleController.class);
+
+    private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+    private static Mem mem=new Mem();
+
+    private static long THIRTY_MIN=30*60*1000;
 
 
     @Autowired
     private KafkaTemplate<String, String> template;
 
-    private static Logger logger= LoggerFactory.getLogger(SampleController.class);
 
-    @RequestMapping("/")
+    @RequestMapping("/getTopTen.do")
     @ResponseBody
-    String home() {
-        return "Hello World!";
+    String home(String time) {
+
+        Date date=new Date(Long.parseLong(time)-Long.parseLong(time)%THIRTY_MIN);
+
+        if(mem.memStore.containsKey(date)){
+            return mem.memStore.get(date).toJSONString();
+        }
+        else{
+            return "Hello World!";
+        }
+
+
     }
 
 
-    @KafkaListener(id = "t1", topics = "topTen")
-    public void listenT1(ConsumerRecord<?, ?> cr) throws Exception {
-        logger.info("{} - {} : {}", cr.topic(), cr.key(), cr.value());
+    @KafkaListener(id = "t314", topics = "topTen")
+    public void listenT1(ConsumerRecord<?, String> cr) throws Exception {
+//        logger.info("{} - {} : {}", cr.topic(), cr.key(), cr.value());
+        JSONObject object=JSON.parseObject(cr.value());
+        logger.info("{}",object);
+        Date date= (Date) sdf.parseObject(object.getString("time"));
+        mem.memStore.put(date,object);
+
     }
 
-    @KafkaListener(id = "t2", topics = "t2")
-    public void listenT2(ConsumerRecord<?, ?> cr) throws Exception {
-        logger.info("{} - {} : {}", cr.topic(), cr.key(), cr.value());
-    }
 
 
     public static void main(String[] args) throws Exception {

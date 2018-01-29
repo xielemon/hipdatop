@@ -38,7 +38,7 @@ public class SampleController {
     @ResponseBody
     String home(String time) {
 
-        Date date=new Date(Long.parseLong(time)-Long.parseLong(time)%THIRTY_MIN);
+        Date date=new Date(Long.parseLong(time)-Long.parseLong(time)%THIRTY_MIN-THIRTY_MIN);
 
         if(mem.memStore.containsKey(date)){
             return mem.memStore.get(date).toJSONString();
@@ -51,14 +51,13 @@ public class SampleController {
     }
 
 
-    @KafkaListener(id = "t314", topics = "topTen")
+    @KafkaListener(id = "12345", topics = "topTen201")
     public void listenT1(ConsumerRecord<?, String> cr) throws Exception {
 //        logger.info("{} - {} : {}", cr.topic(), cr.key(), cr.value());
         JSONObject object=JSON.parseObject(cr.value());
         logger.info("{}",object);
         Date date= (Date) sdf.parseObject(object.getString("time"));
         mem.memStore.put(date,object);
-
     }
 
 

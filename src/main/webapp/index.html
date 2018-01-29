@@ -1,0 +1,79 @@
+<html>
+
+<body>
+<div id="time">
+    <el-tag align="center" type="danger">最后更新于：{{updateTime}}</el-tag>
+</div>
+
+<div id="app">
+
+        <el-table :data="tableData" style="width: 100%" @row-click="showDetail">
+            <el-table-column prop="author" label="作者" width="180">
+            </el-table-column>
+            <el-table-column prop="title" label="标题" >
+            </el-table-column>
+            <el-table-column prop="clickDelta" label="热度">
+            </el-table-column>
+        </el-table>
+
+</div>
+</body>
+<style type="text/css">
+    @import url("//unpkg.com/element-ui/lib/theme-chalk/index.css");
+</style>
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.0.11/lib/index.js"></script>
+<script type='text/javascript'
+        src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
+<script type='text/javascript'>
+
+    var timestamp = Date.parse(new Date());
+    var data;
+
+
+
+
+    $.get('/getTopTen.do?time='+timestamp,function (data) {
+        data=JSON.parse(data);
+        console.log(data);
+
+        var Main = {
+            data() {
+                return {
+                    tableData: data['topTen']
+                }
+            },
+            methods:{
+                formatter(row,column){
+                    return "<a>"+row.link+'<a>';
+                },
+
+                cellclick(row, column, cell, event){
+                    console.log(row);
+                },
+                showDetail(row, event, column){
+                    var link="https://www.hi-pda.com/forum/"+row.link;
+                    window.open(link);
+                }
+
+            }
+        }
+        var Ctor = Vue.extend(Main)
+        new Ctor().$mount('#app')
+
+        var time = new Vue({
+            el: '#time',
+            data: {
+                updateTime: data['time']
+            }
+        })
+
+    })
+
+
+
+</script>
+
+</html>
